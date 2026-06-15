@@ -1,0 +1,26 @@
+=== Script: part_a.py ===
+Timestamp: 2026-06-14 15:59:04
+Input file: BX-dump.sql
+Output DB: books.db
+
+--- Step A1: Initial Data Dimensions ---
+Table `BX-Books`: 270551 rows, 8 columns
+Table `BX-Users`: 278858 rows, 3 columns
+Table `BX-Book-Ratings`: 1144627 rows, 3 columns
+Wall-clock time for A1: 201.77 seconds
+
+--- Step A2: Cleaned Data Dimensions & Summary ---
+Table `BX-Books`:
+  - Rows Removed: 1
+  - Rows Remaining: 270550 (Columns: 8)
+Table `BX-Users`:
+  - Rows Removed: 0
+  - Rows Remaining: 278858 (Columns: 3)
+Table `BX-Book-Ratings`:
+  - Rows Removed: 118302
+  - Rows Remaining: 1026325 (Columns: 3)
+
+Row count after complete JOIN: 1026325
+Wall-clock time for A2: 6.52 seconds
+
+Total Wall-clock time for part_a.py: 212.24 seconds

@@ -1,0 +1,48 @@
+=== Script: part_b.py ===
+Timestamp: 2026-06-14 16:08:13
+Database: books.db
+
+--- B1: Basic Statistics ---
+Total Users: 278858
+Total Books: 270550
+Total Ratings: 1026325
+Implicit Ratings (0): 644425 (62.79%)
+Explicit Ratings (1-10): 381900 (37.21%)
+Age Distribution -> Min: 5, Max: 119, Mean: 34.87, Median: 32.0
+Missing/Invalid Ages count: 112010
+Execution time for B1: 0.39 seconds
+
+--- B2: Frequency Distribution Bins for README ---
+User Bins table data: {'1': 51071, '2-4': 20390, '5-9': 8640, '10-19': 5081, '20-49': 3568, '50+': 3049}
+Book Bins table data: {'1': 145215, '2-4': 83357, '5-9': 23374, '10-19': 10164, '20+': 7232}
+Rating Value mapping (0-10): {0: 644425, 1: 1472, 2: 2364, 3: 5090, 4: 7581, 5: 45176, 6: 31538, 7: 66060, 8: 91301, 9: 60437, 10: 70881}
+Time - User aggregation: 0.22 s
+Time - Book aggregation: 1.08 s
+
+--- B3: Top-10 Explicit Lists Data ---
+Top 10 Books:
+  1. The Lovely Bones: A Novel by Alice Sebold (707 ratings)
+  2. Wild Animus by Rich Shapero (581 ratings)
+  3. The Da Vinci Code by Dan Brown (487 ratings)
+  4. The Red Tent (Bestselling Backlist) by Anita Diamant (383 ratings)
+  5. Divine Secrets of the Ya-Ya Sisterhood: A Novel by Rebecca Wells (320 ratings)
+  6. Harry Potter and the Sorcerer's Stone (Harry Potter (Paperback)) by J. K. Rowling (313 ratings)
+  7. The Secret Life of Bees by Sue Monk Kidd (307 ratings)
+  8. Where the Heart Is (Oprah's Book Club (Paperback)) by Billie Letts (295 ratings)
+  9. A Painted House by John Grisham (281 ratings)
+  10. Girl with a Pearl Earring by Tracy Chevalier (278 ratings)
+
+Top 10 Users:
+  1. User-ID: 11676 (6914 ratings)
+  2. User-ID: 98391 (5676 ratings)
+  3. User-ID: 189835 (1892 ratings)
+  4. User-ID: 153662 (1839 ratings)
+  5. User-ID: 23902 (1177 ratings)
+  6. User-ID: 235105 (1015 ratings)
+  7. User-ID: 76499 (1006 ratings)
+  8. User-ID: 16795 (955 ratings)
+  9. User-ID: 171118 (955 ratings)
+  10. User-ID: 248718 (936 ratings)
+
+Time - Top-10 Books: 4.84 s
+Time - Top-10 Users: 0.22 s

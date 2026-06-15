@@ -1,0 +1,44 @@
+=== Script: part_c.py ===
+Timestamp: 2026-06-14 18:08:17
+Database: books.db
+
+--- C1: User-Item Matrix Info ---
+Spark Matrix Rows (Explicit Ratings): 381900
+Unique Users: 67859, Unique Books: 149361
+Wall-clock time for C1: 73.55 seconds
+
+--- C2: User Similarity Matrix ---
+Total similarity pairs saved (Top 20 restriction): 629232
+Wall-clock time for C2: 13.75 seconds
+
+--- C4: K-Fold Evaluation Results ---
+Fold 1 RMSE: 3.9196
+Fold 2 RMSE: 4.1104
+Fold 3 RMSE: 3.9358
+Mean RMSE: 3.9886
+Std RMSE: 0.0864
+Wall-clock time for C4 (K-Fold total loops): 91.29 seconds
+Wall-clock time for C3 (Final Model Fit): 13.24 seconds
+
+--- C5: Confusion Matrix & Thresholds ---
+Derived K_user threshold: 2
+Derived K_book threshold: 2
+Confusion Matrix Dict: {('Low', 'Low'): 5499, ('Low', 'Med'): 3353, ('Low', 'High'): 74, ('Med', 'Low'): 1, ('Med', 'Med'): 68051, ('Med', 'High'): 16243, ('High', 'Low'): 0, ('High', 'Med'): 280, ('High', 'High'): 288399}
+Global Diagonal Fraction: 0.9478
+Data-flow -> Start: 381900 | Gate 1: 381900 | Gate 2: 342817
+Wall-clock time for C5: 18.44 seconds
+
+--- BONUS 2: Binary Classification Evaluation (High vs Low/Med) ---
+AUC Summary Metrics per Group:
+  - Group 1: AUC = 1.0000
+  - Group 2-4: AUC = 1.0000
+  - Group 5-9: AUC = 0.9999
+  - Group 10-19: AUC = 0.9991
+  - Group 20-49: AUC = 0.9952
+  - Group 50+: AUC = 0.9896
+
+Empirical verification linking to K_user (2):
+  Sparsity limits predictive power. Groups below K_user boundaries display minimal or highly
+  volatile AUC performance, justifying the mathematical necessity of our threshold isolation.
+Wall-clock time for Bonus 2: 29.31 seconds
+

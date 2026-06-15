@@ -1,0 +1,15 @@
+=== Script: part_d.py ===
+Timestamp: 2026-06-14 19:14:09
+Database: books.db
+
+--- D3: Confusion Matrix & Model Comparisons ---
+Item-Based Confusion Matrix Dict: {('Low', 'Low'): 137, ('Low', 'Med'): 839, ('Low', 'High'): 2290, ('Med', 'Low'): 189, ('Med', 'Med'): 12956, ('Med', 'High'): 27867, ('High', 'Low'): 399, ('High', 'Med'): 9775, ('High', 'High'): 164819}
+Item-Based Diagonal Fraction: 0.8114
+
+--- Side-by-Side Comparison Data ---
+Model Fit Time (s)      | User-CF: 13.24 | Item-CF: 50.17
+Prediction Time (s)     | User-CF: 18.44 | Item-CF: 8.73
+Diagonal Fraction       | User-CF: 0.9478 | Item-CF: 0.8114
+Better performing model: User-Based CF
+Wall-clock time for D3 evaluation: 8.73 seconds
+
