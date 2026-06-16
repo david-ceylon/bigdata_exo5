@@ -68,78 +68,78 @@ B3 top-10 books | 4.84s
 B3 top-10 users | 0.22s
 
 # Part C
-K_user (empirically derived) : 2
-K_book (empirically derived) : 2
+K_user (empirically derived) : 5
+K_book (empirically derived) : 10
 
 ## Data-flow summary
 Stage | Rows | % of start
 ---------------------------------------|----------|----------
 Explicit ratings (start) | 381,900 | 100%
 After Gate 1 (ISBN/User-ID cleaning) | 381,900 | 100.00%
-After Gate 2 (K_user filter) | 342,817 | 89.77%
+After Gate 2 (K_user filter) | 300,501 | 78.69%
 
 ## k-fold results (k = 3)
 Fold | RMSE
 -----|-----
-1 | 3.9196
-2 | 4.1104
-3 | 3.9358
-**Mean RMSE** : 3.9886
-**Std RMSE** : 0.0864
+1 | 4.0451
+2 | 4.0758
+3 | 3.8627
+**Mean RMSE** : 3.9945
+**Std RMSE** : 0.0941
 
 ## Confusion matrix — User-Based CF (Low / Medium / High)
              | Pred Low | Pred Med | Pred High
 -------------|----------|----------|----------
-**Actual Low** | 5,499    | 3,353    | 74
-**Actual Med** | 1        | 68,051   | 16,243
-**Actual High**| 0        | 280      | 288,399
+**Actual Low** | 4,516    | 2,604    | 482
+**Actual Med** | 3,863    | 54,082   | 13,956
+**Actual High**| 10,107   | 18,832   | 222,670
 
-Diagonal fraction: 94.78%
+Diagonal fraction: 84.95%
 
 ## Timing — Part C
 Step | Wall-clock (s)
 ----------------------------------|---------------
-C1 User-Item matrix build | 73.55s
-C2 User similarity | 13.75s
-C3 Model fit | 13.24s
-C4 k-fold (total) | 91.29s
-C5 Prediction vs ground-truth | 18.44s
+C1 User-Item matrix build | 69.26s
+C2 User similarity | 11.76s
+C3 Model fit | 15.74s
+C4 k-fold (total) | 77.59s
+C5 Prediction vs ground-truth | 83.93s
 
 # Part D
 ## Confusion matrix — Item-Based CF (Low / Medium / High)
              | Pred Low | Pred Med | Pred High
 -------------|----------|----------|----------
-**Actual Low** | 137      | 839      | 2,290
-**Actual Med** | 189      | 12,956   | 27,867
-**Actual High**| 399      | 9,775    | 164,819
+**Actual Low** | 4,616    | 2,503    | 483
+**Actual Med** | 4,065    | 54,328   | 13,508
+**Actual High**| 10,575   | 19,045   | 221,989
 
-Diagonal fraction: 81.14%
+Diagonal fraction: 84.85%
 
 ## User-CF vs Item-CF comparison
 Metric | User-CF | Item-CF
 ---------------------|---------|--------
-Model fit time (s) | 13.24s | 50.17s
-Prediction time (s) | 18.44s | 8.73s
-Diagonal fraction | 94.78% | 81.14%
+Model fit time (s) | 33.04s | 27.05s
+Prediction time (s) | 77.47s | 46.09s
+Diagonal fraction | 84.74% | 84.85%
 
 ## Timing — Part D
 Step | Wall-clock (s)
 ----------------------------------|---------------
-D1 Item similarity | 50.17s
-D2 Model fit | 50.17s
-D3 Prediction vs ground-truth | 8.73s
+D1 Item similarity | 27.05s
+D2 Model fit | 27.05s
+D3 Prediction vs ground-truth | 46.09s
 
 # Part E
-Cold-start users : 39,083 (57.59%)
-Warm users : 28,776 (42.41%)
-K_user used : 2
+Cold-start users : 55,139 (81.26%)
+Warm users : 12,720 (18.74%)
+K_user used : 5
 FP-Growth minSupport : 0.00025
 FP-Growth minConfidence : 0.1
-Rules generated : 950
+Rules generated : 3,527
 
 ## Timing — Part E
 Step | Wall-clock (s)
 ----------------------------------|---------------
-E1 Cold-start partitioning | 24.36s
-E3 FP-Growth fit | 39.37s
-E4 Recommendations for Cold Users | 39.06s (including scaling evaluation and recommendation generation)
+E1 Cold-start partitioning | 24.81s
+E3 FP-Growth fit | 51.35s
+E4 Recommendations for Cold Users | 45.34s (including scaling evaluation and recommendation generation)

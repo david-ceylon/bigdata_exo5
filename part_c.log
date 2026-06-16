@@ -1,44 +1,84 @@
 === Script: part_c.py ===
-Timestamp: 2026-06-14 18:08:17
+Timestamp: 2026-06-16 15:38:52
 Database: books.db
 
 --- C1: User-Item Matrix Info ---
 Spark Matrix Rows (Explicit Ratings): 381900
 Unique Users: 67859, Unique Books: 149361
-Wall-clock time for C1: 73.55 seconds
+Wall-clock time for C1: 79.64 seconds
 
 --- C2: User Similarity Matrix ---
 Total similarity pairs saved (Top 20 restriction): 629232
-Wall-clock time for C2: 13.75 seconds
+Wall-clock time for C2: 23.24 seconds
 
 --- C4: K-Fold Evaluation Results ---
-Fold 1 RMSE: 3.9196
-Fold 2 RMSE: 4.1104
-Fold 3 RMSE: 3.9358
-Mean RMSE: 3.9886
-Std RMSE: 0.0864
-Wall-clock time for C4 (K-Fold total loops): 91.29 seconds
-Wall-clock time for C3 (Final Model Fit): 13.24 seconds
+Fold 1 RMSE: 3.9876
+Fold 2 RMSE: 4.0468
+Fold 3 RMSE: 3.9398
+Mean RMSE: 3.9914
+Std RMSE: 0.0438
+Wall-clock time for C4 (K-Fold total loops): 152.49 seconds
+Wall-clock time for C3 (Final Model Fit): 33.04 seconds
 
 --- C5: Confusion Matrix & Thresholds ---
-Derived K_user threshold: 2
-Derived K_book threshold: 2
-Confusion Matrix Dict: {('Low', 'Low'): 5499, ('Low', 'Med'): 3353, ('Low', 'High'): 74, ('Med', 'Low'): 1, ('Med', 'Med'): 68051, ('Med', 'High'): 16243, ('High', 'Low'): 0, ('High', 'Med'): 280, ('High', 'High'): 288399}
-Global Diagonal Fraction: 0.9478
-Data-flow -> Start: 381900 | Gate 1: 381900 | Gate 2: 342817
-Wall-clock time for C5: 18.44 seconds
+Derived K_user threshold: 5
+Confusion Matrix:
+             | Pred Low   | Pred Med   | Pred High  
+-------------|------------|------------|------------
+Actual Low   | 4616       | 2512       | 474        
+Actual Med   | 4098       | 54207      | 13596      
+Actual High  | 10759      | 19085      | 221765     
+Class Performance Metrics:
+  - Class Low : Accuracy = 0.9461 | Recall = 0.6072 | F1 = 0.3410
+  - Class Med : Accuracy = 0.8813 | Recall = 0.7539 | F1 = 0.7340
+  - Class High: Accuracy = 0.8674 | Recall = 0.8814 | F1 = 0.9099
+Global Diagonal Fraction: 0.8474
+
+--- C5: User Group Confusion Matrices ---
+Group User 1-4 (Total: 63102, Diagonal/Adjacent Acc: 0.9632):
+             | Pred Low   | Pred Med   | Pred High  
+-------------|------------|------------|------------
+Actual Low   | 1558       | 299        | 31         
+Actual Med   | 860        | 12977      | 894        
+Actual High  | 2289       | 2421       | 41773      
+Group User 5-9 (Total: 36512, Diagonal/Adjacent Acc: 0.9501):
+             | Pred Low   | Pred Med   | Pred High  
+-------------|------------|------------|------------
+Actual Low   | 611        | 381        | 51         
+Actual Med   | 735        | 6676       | 1512       
+Actual High  | 1771       | 2550       | 22225      
+Group User 10-19 (Total: 39978, Diagonal/Adjacent Acc: 0.9565):
+             | Pred Low   | Pred Med   | Pred High  
+-------------|------------|------------|------------
+Actual Low   | 625        | 446        | 66         
+Actual Med   | 697        | 7261       | 1878       
+Actual High  | 1674       | 2717       | 24614      
+Group User 20-49 (Total: 57522, Diagonal/Adjacent Acc: 0.9636):
+             | Pred Low   | Pred Med   | Pred High  
+-------------|------------|------------|------------
+Actual Low   | 744        | 471        | 106        
+Actual Med   | 750        | 8859       | 2615       
+Actual High  | 1989       | 3727       | 38261      
+Group User 50+ (Total: 133998, Diagonal/Adjacent Acc: 0.9757):
+             | Pred Low   | Pred Med   | Pred High  
+-------------|------------|------------|------------
+Actual Low   | 1078       | 915        | 220        
+Actual Med   | 1056       | 18434      | 6697       
+Actual High  | 3036       | 7670       | 94892      
+Data-flow -> Start: 381900 | Gate 1: 381900 | Gate 2: 300501
+Wall-clock time for C5: 77.47 seconds
 
 --- BONUS 2: Binary Classification Evaluation (High vs Low/Med) ---
 AUC Summary Metrics per Group:
   - Group 1: AUC = 1.0000
-  - Group 2-4: AUC = 1.0000
-  - Group 5-9: AUC = 0.9999
-  - Group 10-19: AUC = 0.9991
-  - Group 20-49: AUC = 0.9952
-  - Group 50+: AUC = 0.9896
+  - Group 2-4: AUC = 0.8598
+  - Group 5-9: AUC = 0.8674
+  - Group 10-19: AUC = 0.8693
+  - Group 20-49: AUC = 0.8815
+  - Group 50+: AUC = 0.9020
 
-Empirical verification linking to K_user (2):
+Empirical verification linking to K_user (5):
   Sparsity limits predictive power. Groups below K_user boundaries display minimal or highly
   volatile AUC performance, justifying the mathematical necessity of our threshold isolation.
-Wall-clock time for Bonus 2: 29.31 seconds
+Wall-clock time for Bonus 2: 21.76 seconds
 

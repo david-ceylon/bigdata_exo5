@@ -110,6 +110,16 @@ def main():
 
 
     # ==========================================
+    # MISSION C3: Final Model Fit
+    # ==========================================
+    print("Running C3: Final Model Training on 100% data...")
+    start_c3 = time.time()
+    als = ALS(maxIter=10, regParam=0.1, userCol="user_int_id", itemCol="book_int_id", ratingCol="rating", coldStartStrategy="drop")
+    model_c3 = als.fit(spark_df)
+    time_c3 = time.time() - start_c3
+
+
+    # ==========================================
     # MISSION C4: K-Fold Cross Validation
     # ==========================================
     print("Running C4: 3-Fold Cross-Validation loops...")
@@ -119,7 +129,6 @@ def main():
     folds = spark_df.randomSplit([1.0 / k_folds] * k_folds, seed=42)
     rmse_list = []
 
-    als = ALS(maxIter=10, regParam=0.1, userCol="user_int_id", itemCol="book_int_id", ratingCol="rating", coldStartStrategy="drop")
     evaluator = RegressionEvaluator(metricName="rmse", labelCol="rating", predictionCol="prediction")
 
     # Manual loop execution to log individual fold metrics separately
@@ -141,14 +150,7 @@ def main():
     std_rmse = variance_rmse ** 0.5
     time_c4 = time.time() - start_c4_total
 
-
-    # ==========================================
-    # MISSION C3: Final Model Fit
-    # ==========================================
-    print("Running C3: Final Model Training on 100% data...")
-    start_c3 = time.time()
-    final_model = als.fit(spark_df)
-    time_c3 = time.time() - start_c3
+    final_model = model_fold  # Keep the model of C4 (last fold)
 
     with open(log_filename, "a", encoding="utf-8") as log_file:
         log_file.write("--- C4: K-Fold Evaluation Results ---\n")
@@ -188,32 +190,140 @@ def main():
     user_counts = spark_df.groupBy("user_int_id").count()
     book_counts = spark_df.groupBy("book_int_id").count()
     
-    # Set empirical thresholds algorithmically based on the 15th percentile of density distribution using approxQuantile (JVM-side)
-    K_user = int(user_counts.approxQuantile("count", [0.15], 0.001)[0]) + 1
-    K_book = int(book_counts.approxQuantile("count", [0.15], 0.001)[0]) + 1
-    
-    # Enforce standard mathematical baselines
-    #if K_user < 5: K_user = 5
-    #if K_book < 3: K_book = 3
-
-    # Gather data-flow counters for README report
+    # Gather data-flow counters for README report (K_user thresholds calculated dynamically later)
     after_gate1_count = initial_explicit_count
-    after_gate2_df = spark_df.join(user_counts.filter(f"count >= {K_user}"), "user_int_id")
-    after_gate2_count = after_gate2_df.count()
 
     # General accuracy tracking metrics
     total_elements = sum(matrix_dict.values())
     diagonal_elements = matrix_dict[("Low", "Low")] + matrix_dict[("Med", "Med")] + matrix_dict[("High", "High")]
     diagonal_fraction = diagonal_elements / total_elements if total_elements > 0 else 0
 
+    # Calculate class metrics (Low, Med, High)
+    classes = ["Low", "Med", "High"]
+    metrics_report = {}
+    total_samples = sum(matrix_dict.values())
+    for c in classes:
+        tp = matrix_dict[(c, c)]
+        fp = sum(matrix_dict[(a, c)] for a in classes if a != c)
+        fn = sum(matrix_dict[(c, p)] for p in classes if p != c)
+        tn = sum(matrix_dict[(a, p)] for a in classes if a != c for p in classes if p != c)
+        
+        acc = (tp + tn) / total_samples if total_samples > 0 else 0
+        rec = tp / (tp + fn) if (tp + fn) > 0 else 0
+        prec = tp / (tp + fp) if (tp + fp) > 0 else 0
+        f1 = 2 * (prec * rec) / (prec + rec) if (prec + rec) > 0 else 0
+        
+        metrics_report[c] = {"accuracy": acc, "recall": rec, "f1": f1}
+
+    matrix_str = (
+        "             | Pred Low   | Pred Med   | Pred High  \n"
+        "-------------|------------|------------|------------\n"
+        f"Actual Low   | {matrix_dict[('Low', 'Low')]:<10} | {matrix_dict[('Low', 'Med')]:<10} | {matrix_dict[('Low', 'High')]:<10} \n"
+        f"Actual Med   | {matrix_dict[('Med', 'Low')]:<10} | {matrix_dict[('Med', 'Med')]:<10} | {matrix_dict[('Med', 'High')]:<10} \n"
+        f"Actual High  | {matrix_dict[('High', 'Low')]:<10} | {matrix_dict[('High', 'Med')]:<10} | {matrix_dict[('High', 'High')]:<10} "
+    )
+
+    metrics_str = "Class Performance Metrics:\n"
+    for c in classes:
+        metrics_str += f"  - Class {c:4}: Accuracy = {metrics_report[c]['accuracy']:.4f} | Recall = {metrics_report[c]['recall']:.4f} | F1 = {metrics_report[c]['f1']:.4f}\n"
+
+    # User activity grouping analysis
+    df_user_eval = evaluated_df.join(user_counts, "user_int_id")
+    user_group_bins = [
+        ("1-4", 1, 4),
+        ("5-9", 5, 9),
+        ("10-19", 10, 19),
+        ("20-49", 20, 49),
+        ("50+", 50, 9999999)
+    ]
+    
+    user_accuracies = []
+    user_matrix_texts = []
+    
+    for label, min_c, max_c in user_group_bins:
+        group_df = df_user_eval.filter((F.col("count") >= min_c) & (F.col("count") <= max_c))
+        group_conf = group_df.groupBy("actual_class", "pred_class").count().collect()
+        group_dict = {(a, p): 0 for a in ["Low", "Med", "High"] for p in ["Low", "Med", "High"]}
+        for row in group_conf:
+            group_dict[(row["actual_class"], row["pred_class"])] = row["count"]
+            
+        total = sum(group_dict.values())
+        diag_adj = total - group_dict[("Low", "High")] - group_dict[("High", "Low")]
+        acc = diag_adj / total if total > 0 else 0
+        user_accuracies.append(acc)
+        
+        m_str = (
+            f"Group User {label} (Total: {total}, Diagonal/Adjacent Acc: {acc:.4f}):\n"
+            "             | Pred Low   | Pred Med   | Pred High  \n"
+            "-------------|------------|------------|------------\n"
+            f"Actual Low   | {group_dict[('Low', 'Low')]:<10} | {group_dict[('Low', 'Med')]:<10} | {group_dict[('Low', 'High')]:<10} \n"
+            f"Actual Med   | {group_dict[('Med', 'Low')]:<10} | {group_dict[('Med', 'Med')]:<10} | {group_dict[('Med', 'High')]:<10} \n"
+            f"Actual High  | {group_dict[('High', 'Low')]:<10} | {group_dict[('High', 'Med')]:<10} | {group_dict[('High', 'High')]:<10} "
+        )
+        user_matrix_texts.append(m_str)
+
+    # Book activity grouping analysis
+    df_book_eval = evaluated_df.join(book_counts, "book_int_id")
+    book_group_bins = [
+        ("1-4", 1, 4),
+        ("5-9", 5, 9),
+        ("10-19", 10, 19),
+        ("20-49", 20, 49),
+        ("50+", 50, 9999999)
+    ]
+    
+    # Plot single analysis graph for users
+    x_values = [1, 5, 10, 20, 50]
+    plt.figure(figsize=(8, 6))
+    plt.plot(x_values, user_accuracies, marker='o', linestyle='-', color='b', label='User-Based Accuracy')
+    plt.xlabel('Minimum Rating Count of Group (Threshold)', fontsize=12)
+    plt.ylabel('Diagonal or Adjacent Accuracy Fraction', fontsize=12)
+    plt.title('Empirical K_user Inflection Analysis', fontsize=14)
+    plt.xticks(x_values)
+    plt.grid(True, linestyle=':')
+    plt.legend(loc='lower right')
+    plt.tight_layout()
+    plt.savefig("inflection_analysis_kuser.png")
+    plt.close()
+
+    def find_inflection_point(x_vals, accs, threshold=0.015):
+        if len(accs) < 2:
+            return 2
+        start_idx = 0
+        if accs[1] < accs[0]:
+            start_idx = 1
+            
+        max_acc = max(accs[start_idx:])
+        for i in range(start_idx, len(accs)):
+            if accs[i] >= 0.98 * max_acc:
+                val = x_vals[i]
+                return val if val >= 2 else 2
+            if i < len(accs) - 1:
+                diff = accs[i+1] - accs[i]
+                if diff < threshold:
+                    val = x_vals[i]
+                    return val if val >= 2 else 2
+        return x_vals[-1]
+
+    x_values = [1, 5, 10, 20, 50]
+    K_user = find_inflection_point(x_values, user_accuracies)
+
+    after_gate2_df = spark_df.join(user_counts.filter(f"count >= {K_user}"), "user_int_id")
+    after_gate2_count = after_gate2_df.count()
+
     time_c5 = time.time() - start_c5
 
     with open(log_filename, "a", encoding="utf-8") as log_file:
         log_file.write("--- C5: Confusion Matrix & Thresholds ---\n")
         log_file.write(f"Derived K_user threshold: {K_user}\n")
-        log_file.write(f"Derived K_book threshold: {K_book}\n")
-        log_file.write(f"Confusion Matrix Dict: {matrix_dict}\n")
-        log_file.write(f"Global Diagonal Fraction: {diagonal_fraction:.4f}\n")
+        log_file.write(f"Confusion Matrix:\n{matrix_str}\n")
+        log_file.write(metrics_str)
+        log_file.write(f"Global Diagonal Fraction: {diagonal_fraction:.4f}\n\n")
+        
+        log_file.write("--- C5: User Group Confusion Matrices ---\n")
+        for text in user_matrix_texts:
+            log_file.write(text + "\n")
+            
         log_file.write(f"Data-flow -> Start: {initial_explicit_count} | Gate 1: {after_gate1_count} | Gate 2: {after_gate2_count}\n")
         log_file.write(f"Wall-clock time for C5: {time_c5:.2f} seconds\n\n")
 

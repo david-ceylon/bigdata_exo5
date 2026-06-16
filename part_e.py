@@ -64,14 +64,17 @@ def main():
     
     spark.sparkContext.setLogLevel("ERROR")
 
-    # Parse K_user and K_book thresholds empirically from part_c.log
+    # Parse K_user and K_book thresholds empirically from logs
     K_user, K_book = 2, 2  # Fallback defaults
     if os.path.exists("part_c.log"):
         with open("part_c.log", "r", encoding="utf-8") as c_log:
             c_content = c_log.read()
             u_match = re.search(r"Derived K_user threshold:\s*(\d+)", c_content)
-            b_match = re.search(r"Derived K_book threshold:\s*(\d+)", c_content)
             if u_match: K_user = int(u_match.group(1))
+    if os.path.exists("part_d.log"):
+        with open("part_d.log", "r", encoding="utf-8") as d_log:
+            d_content = d_log.read()
+            b_match = re.search(r"Derived K_book threshold:\s*(\d+)", d_content)
             if b_match: K_book = int(b_match.group(1))
 
     print(f"Loaded Empirical Thresholds from Part C -> K_user: {K_user}, K_book: {K_book}")
