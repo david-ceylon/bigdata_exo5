@@ -1,61 +1,62 @@
 === Script: part_d.py ===
-Timestamp: 2026-06-16 15:39:12
+Timestamp: 2026-06-16 16:59:27
 Database: books.db
 
 --- D3: Confusion Matrix & Model Comparisons ---
-Derived K_book threshold: 10
+Derived K_book threshold: 2
 Confusion Matrix:
              | Pred Low   | Pred Med   | Pred High  
 -------------|------------|------------|------------
-Actual Low   | 4616       | 2503       | 483        
-Actual Med   | 4065       | 54328      | 13508      
-Actual High  | 10575      | 19045      | 221989     
+Actual Low   | 5379       | 3529       | 18         
+Actual Med   | 0          | 70349      | 13946      
+Actual High  | 0          | 83         | 288596     
 Class Performance Metrics:
-  - Class Low : Accuracy = 0.9468 | Recall = 0.6072 | F1 = 0.3437
-  - Class Med : Accuracy = 0.8818 | Recall = 0.7556 | F1 = 0.7353
-  - Class High: Accuracy = 0.8683 | Recall = 0.8823 | F1 = 0.9106
-Item-Based Diagonal Fraction: 0.8485
+  - Class Low : Accuracy = 0.9907 | Recall = 0.6026 | F1 = 0.7520
+  - Class Med : Accuracy = 0.9540 | Recall = 0.8346 | F1 = 0.8891
+  - Class High: Accuracy = 0.9632 | Recall = 0.9997 | F1 = 0.9762
+Item-Based Diagonal Fraction: 0.9540
 
 --- Side-by-Side Comparison Data ---
-Model Fit Time (s)      | User-CF: 33.04 | Item-CF: 27.05
-Prediction Time (s)     | User-CF: 77.47 | Item-CF: 46.09
-Diagonal Fraction       | User-CF: 0.8474 | Item-CF: 0.8485
-Better performing model: Item-Based CF
-Wall-clock time for D4 evaluation: 46.09 seconds
+Model Fit Time (s)      | User-CF: 918.49 | Item-CF: 1003.45
+Prediction Time (s)     | User-CF: 62.90 | Item-CF: 61.00
+Diagonal Fraction       | User-CF: 0.9541 | Item-CF: 0.9540
+Better performing model: User-Based CF
+Wall-clock time for D4 evaluation: 61.00 seconds
 
-Fold 1 RMSE: 3.9747 | Fold 2 RMSE: 4.0205 | Fold 3 RMSE: 3.9227
-Mean RMSE: 3.9726 | Std RMSE: 0.0399
-Wall-clock time for D3 (K-Fold total loops): 128.00 seconds
-Wall-clock time for D2 (Final Model Fit): 27.05 seconds
+Optimal Rank: 50 | Optimal RegParam: 0.2 | Optimal MaxIter: 15
+Fold 1 RMSE: 2.2847 | Fold 2 RMSE: 2.2708 | Fold 3 RMSE: 2.2685
+Mean RMSE: 2.2746 | Std RMSE: 0.0072
+Wall-clock time for D3 (K-Fold total loops): 124.16 seconds
+Wall-clock time for D2 (Tuning Grid Search): 1003.45 seconds
 
 --- D3: Book Group Confusion Matrices ---
-Group Book 1-4 (Total: 149128, Diagonal/Adjacent Acc: 0.9597):
+Group Book 1-4 (Total: 191034, Diagonal/Adjacent Acc: 1.0000):
              | Pred Low   | Pred Med   | Pred High  
 -------------|------------|------------|------------
-Actual Low   | 2886       | 761        | 60         
-Actual Med   | 2327       | 30701      | 3243       
-Actual High  | 5944       | 6343       | 96863      
-Group Book 5-9 (Total: 50504, Diagonal/Adjacent Acc: 0.9542):
+Actual Low   | 3770       | 1038       | 0          
+Actual Med   | 0          | 43665      | 3250       
+Actual High  | 0          | 2          | 139309     
+Group Book 5-9 (Total: 52711, Diagonal/Adjacent Acc: 1.0000):
              | Pred Low   | Pred Med   | Pred High  
 -------------|------------|------------|------------
-Actual Low   | 589        | 449        | 80         
-Actual Med   | 827        | 7470       | 2391       
-Actual High  | 2234       | 4351       | 32113      
-Group Book 10-19 (Total: 41611, Diagonal/Adjacent Acc: 0.9723):
+Actual Low   | 566        | 622        | 0          
+Actual Med   | 0          | 8629       | 2533       
+Actual High  | 0          | 5          | 40356      
+Group Book 10-19 (Total: 43490, Diagonal/Adjacent Acc: 1.0000):
              | Pred Low   | Pred Med   | Pred High  
 -------------|------------|------------|------------
-Actual Low   | 351        | 362        | 96         
-Actual Med   | 392        | 5804       | 2375       
-Actual High  | 1055       | 2900       | 28276      
-Group Book 20-49 (Total: 43703, Diagonal/Adjacent Acc: 0.9799):
+Actual Low   | 318        | 537        | 0          
+Actual Med   | 0          | 6583       | 2395       
+Actual High  | 0          | 11         | 33646      
+Group Book 20-49 (Total: 45788, Diagonal/Adjacent Acc: 0.9999):
              | Pred Low   | Pred Med   | Pred High  
 -------------|------------|------------|------------
-Actual Low   | 338        | 406        | 108        
-Actual Med   | 315        | 5396       | 2643       
-Actual High  | 771        | 2727       | 30999      
-Group Book 50+ (Total: 46166, Diagonal/Adjacent Acc: 0.9846):
+Actual Low   | 276        | 609        | 3          
+Actual Med   | 0          | 5977       | 2776       
+Actual High  | 0          | 20         | 36127      
+Group Book 50+ (Total: 48877, Diagonal/Adjacent Acc: 0.9997):
              | Pred Low   | Pred Med   | Pred High  
 -------------|------------|------------|------------
-Actual Low   | 452        | 525        | 139        
-Actual Med   | 204        | 4957       | 2856       
-Actual High  | 571        | 2724       | 33738      
+Actual Low   | 449        | 723        | 15         
+Actual Med   | 0          | 5495       | 2992       
+Actual High  | 0          | 45         | 39158      

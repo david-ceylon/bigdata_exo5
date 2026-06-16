@@ -13,6 +13,7 @@ from pyspark.sql.window import Window
 from pyspark.ml.feature import StringIndexer
 from pyspark.ml.recommendation import ALS
 from pyspark.ml.evaluation import RegressionEvaluator
+from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 import matplotlib.pyplot as plt
 
 def main():
@@ -30,11 +31,14 @@ def main():
         log_file.write(f"Timestamp: {timestamp}\n")
         log_file.write(f"Database: {args.db}\n\n")
 
-    # Initialize Spark Session
+    # Initialize Spark Session locally using all available CPU cores with 8GB RAM and 8MB Stack size
     spark = SparkSession.builder \
         .appName("BookCrossing-IBCF") \
         .master("local[*]") \
-        .config("spark.driver.memory", "4g") \
+        .config("spark.driver.memory", "8g") \
+        .config("spark.executor.memory", "8g") \
+        .config("spark.driver.extraJavaOptions", "-Xss8m") \
+        .config("spark.executor.extraJavaOptions", "-Xss8m") \
         .getOrCreate()
     
     spark.sparkContext.setLogLevel("ERROR")
@@ -87,26 +91,81 @@ def main():
 
 
     # ==========================================
-    # MISSION D2: Final Model Fit (ALS)
+    # MISSION D2: Hyperparameter Tuning via Grid Search & CrossValidation
     # ==========================================
-    print("Running D2: Final Model Training on 100% data...")
+    print("Running D2: ALS Hyperparameter Tuning and Grid Search...")
     start_d2 = time.time()
-    als = ALS(maxIter=10, regParam=0.1, userCol="user_int_id", itemCol="book_int_id", ratingCol="rating", coldStartStrategy="drop")
-    model_d2 = als.fit(spark_df)
+    
+    # Base ALS estimator with nonnegative=True
+    als_base = ALS(
+        userCol="user_int_id", 
+        itemCol="book_int_id", 
+        ratingCol="rating", 
+        coldStartStrategy="drop",
+        nonnegative=True
+    )
+
+    # Param grid to search
+    param_grid = ParamGridBuilder() \
+        .addGrid(als_base.rank, [10, 20, 50]) \
+        .addGrid(als_base.regParam, [0.05, 0.1, 0.2]) \
+        .addGrid(als_base.maxIter, [10, 15]) \
+        .build()
+
+    evaluator = RegressionEvaluator(
+        metricName="rmse", 
+        labelCol="rating", 
+        predictionCol="prediction"
+    )
+
+    # 3-Fold CrossValidator with parallelism=4 to speed up execution
+    cv = CrossValidator(
+        estimator=als_base, 
+        estimatorParamMaps=param_grid, 
+        evaluator=evaluator, 
+        numFolds=3,
+        parallelism=4
+    )
+
+    print("Starting CrossValidation to find optimal ALS parameters...")
+    cv_model = cv.fit(spark_df)
     time_d2 = time.time() - start_d2
 
+    # Extract the best model and parameters
+    best_als_model = cv_model.bestModel
+    
+    best_index = np.argmin(cv_model.avgMetrics)
+    best_params = cv_model.getEstimatorParamMaps()[best_index]
+    best_rank = best_params[als_base.rank]
+    best_regParam = best_params[als_base.regParam]
+    best_maxIter = best_params[als_base.maxIter]
+
+    print(f"Optimal Rank: {best_rank}")
+    print(f"Optimal Regularization Param: {best_regParam}")
+    print(f"Optimal Max Iterations: {best_maxIter}")
+
 
     # ==========================================
-    # MISSION D3: K-Fold Cross Validation
+    # MISSION D3: K-Fold Cross Validation of Best Model
     # ==========================================
-    print("Running D3: 3-Fold Cross-Validation loops...")
+    print("Running D3: 3-Fold Cross-Validation loops for the best model configuration...")
     start_d3_total = time.time()
 
     k_folds = 3
     folds = spark_df.randomSplit([1.0 / k_folds] * k_folds, seed=42)
     rmse_list = []
 
-    evaluator = RegressionEvaluator(metricName="rmse", labelCol="rating", predictionCol="prediction")
+    # Configure a model with the optimal parameters
+    best_als_estimator = ALS(
+        userCol="user_int_id",
+        itemCol="book_int_id",
+        ratingCol="rating",
+        coldStartStrategy="drop",
+        nonnegative=True,
+        rank=best_rank,
+        regParam=best_regParam,
+        maxIter=best_maxIter
+    )
 
     # Manual loop execution to log individual fold metrics separately
     for i in range(k_folds):
@@ -116,7 +175,7 @@ def main():
             if j != i:
                 train_df = train_df.union(folds[j])
 
-        model_fold = als.fit(train_df)
+        model_fold = best_als_estimator.fit(train_df)
         predictions_fold = model_fold.transform(test_df)
         rmse = evaluator.evaluate(predictions_fold)
         rmse_list.append(rmse)
@@ -127,7 +186,7 @@ def main():
     std_rmse = variance_rmse ** 0.5
     time_d3 = time.time() - start_d3_total
 
-    final_model = model_fold  # Keep the C4/D3 fold model
+    final_model = best_als_model  # Keep the best model trained on 100% of the data
 
 
     # ==========================================
@@ -283,10 +342,11 @@ def main():
             better_model = "User-Based CF" if float(user_diag_fraction) > item_diagonal_fraction else "Item-Based CF"
             log_file.write(f"Better performing model: {better_model}\n")
         log_file.write(f"Wall-clock time for D4 evaluation: {time_d4:.2f} seconds\n\n")
+        log_file.write(f"Optimal Rank: {best_rank} | Optimal RegParam: {best_regParam} | Optimal MaxIter: {best_maxIter}\n")
         log_file.write(f"Fold 1 RMSE: {rmse_list[0]:.4f} | Fold 2 RMSE: {rmse_list[1]:.4f} | Fold 3 RMSE: {rmse_list[2]:.4f}\n")
         log_file.write(f"Mean RMSE: {mean_rmse:.4f} | Std RMSE: {std_rmse:.4f}\n")
         log_file.write(f"Wall-clock time for D3 (K-Fold total loops): {time_d3:.2f} seconds\n")
-        log_file.write(f"Wall-clock time for D2 (Final Model Fit): {time_d2:.2f} seconds\n\n")
+        log_file.write(f"Wall-clock time for D2 (Tuning Grid Search): {time_d2:.2f} seconds\n\n")
         
         log_file.write("--- D3: Book Group Confusion Matrices ---\n")
         for text in book_matrix_texts:

@@ -221,14 +221,27 @@ def main():
     # ==========================================
     print("Running E4: Generating recommendations for Cold-Start sample users...")
     
-    # Isolate cold users and sample exactly 10 profiles as required
+    # Convert Spark rules to a pandas DataFrame
+    rules_pd = association_rules.toPandas()
+    
+    # Collect all unique book ISBNs that appear in rule antecedents
+    all_antecedents = set()
+    for _, row in rules_pd.iterrows():
+        for item in row["antecedent"]:
+            all_antecedents.add(item)
+            
+    # Isolate cold users and filter for those who have read at least one book in all_antecedents
     cold_users_list_df = spark_df.join(cold_users_df, "User-ID").join(baskets_df, "User-ID") \
         .select("User-ID", "items").distinct()
     
-    sampled_cold_profiles = cold_users_list_df.sample(withReplacement=False, fraction=0.1, seed=42).limit(10).toPandas()
-
-    # Convert Spark rules to a pandas dictionary map for ultra-fast local subset validation
-    rules_pd = association_rules.toPandas()
+    cold_users_pd = cold_users_list_df.toPandas()
+    matching_users_pd = cold_users_pd[cold_users_pd["items"].apply(lambda items: any(item in all_antecedents for item in items))]
+    
+    # Sample exactly 10 profiles from this matching subset
+    if len(matching_users_pd) >= 10:
+        sampled_cold_profiles = matching_users_pd.sample(n=10, random_state=42)
+    else:
+        sampled_cold_profiles = matching_users_pd
     
     cold_recommendations = []
 

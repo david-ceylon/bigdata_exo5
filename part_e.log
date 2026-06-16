@@ -1,47 +1,47 @@
 === Script: part_e.py ===
-Timestamp: 2026-06-16 15:47:46
+Timestamp: 2026-06-16 17:45:18
 Database: books.db
 
 --- E1: Cold-Start User Partitioning Summary ---
-K_user threshold used: 5
-Warm Users: 12720 (18.74%)
-Cold-Start Users: 55139 (81.26%)
-Wall-clock time for E1: 24.81 seconds
+K_user threshold used: 2
+Warm Users: 28776 (42.41%)
+Cold-Start Users: 39083 (57.59%)
+Wall-clock time for E1: 25.50 seconds
 
 --- E3: FP-Growth Mining Summary ---
-Total Transaction Baskets: 39145
+Total Transaction Baskets: 58971
 FP-Growth minSupport: 0.00025
 FP-Growth minConfidence: 0.1
-Rules generated count: 3527
+Rules generated count: 950
 
 Top 20 Association Rules (Ordered by Lift):
-  Rule: ['0345335457', '0345335708'] -> ['0345338715'] | Support: 0.0003 | Conf: 1.0000 | Lift: 3262.0833
-  Rule: ['0505523752', '050552354X'] -> ['0505523892'] | Support: 0.0003 | Conf: 0.9091 | Lift: 2737.4126
-  Rule: ['0064471098', '0064471055'] -> ['0064471071'] | Support: 0.0003 | Conf: 1.0000 | Lift: 2609.6667
-  Rule: ['0064471098', '0064471055', '0064471063'] -> ['0064471071'] | Support: 0.0003 | Conf: 1.0000 | Lift: 2609.6667
-  Rule: ['0515134457', '0515134465'] -> ['0515134481'] | Support: 0.0003 | Conf: 1.0000 | Lift: 2609.6667
-  Rule: ['0064471098', '006447108X', '0064471055', '0064471063'] -> ['0064471071'] | Support: 0.0003 | Conf: 1.0000 | Lift: 2609.6667
-  Rule: ['0064471098', '006447108X', '0064471055'] -> ['0064471071'] | Support: 0.0003 | Conf: 1.0000 | Lift: 2609.6667
-  Rule: ['0515134481', '0515134465'] -> ['0515134457'] | Support: 0.0003 | Conf: 0.9091 | Lift: 2541.8831
-  Rule: ['0515134473'] -> ['0515134457'] | Support: 0.0003 | Conf: 0.9091 | Lift: 2541.8831
-  Rule: ['0505523892', '0505524090'] -> ['0505523752'] | Support: 0.0003 | Conf: 0.9091 | Lift: 2541.8831
-  Rule: ['0515134457'] -> ['0515134473'] | Support: 0.0003 | Conf: 0.7143 | Lift: 2541.8831
-  Rule: ['050552354X', '0505524090'] -> ['0505523752'] | Support: 0.0003 | Conf: 0.9091 | Lift: 2541.8831
-  Rule: ['0505523892', '050552354X'] -> ['0505523752'] | Support: 0.0003 | Conf: 0.9091 | Lift: 2541.8831
-  Rule: ['0345338715', '0345335457'] -> ['0345335708'] | Support: 0.0003 | Conf: 1.0000 | Lift: 2446.5625
-  Rule: ['006447108X', '0064471055'] -> ['0064471071'] | Support: 0.0003 | Conf: 0.9231 | Lift: 2408.9231
-  Rule: ['006447108X', '0064471055', '0064471063'] -> ['0064471071'] | Support: 0.0003 | Conf: 0.9231 | Lift: 2408.9231
-  Rule: ['0064471098', '0064471063'] -> ['0064471071'] | Support: 0.0003 | Conf: 0.9167 | Lift: 2392.1944
-  Rule: ['0064471098', '006447108X'] -> ['0064471071'] | Support: 0.0003 | Conf: 0.9091 | Lift: 2372.4242
-  Rule: ['0515134473'] -> ['0515134481'] | Support: 0.0003 | Conf: 0.9091 | Lift: 2372.4242
-  Rule: ['0515134457', '0515134481'] -> ['0515134465'] | Support: 0.0003 | Conf: 0.9091 | Lift: 2372.4242
+  Rule: ['0451190564', '0451190521', '0451190491'] -> ['0451190556'] | Support: 0.0003 | Conf: 1.0000 | Lift: 2268.1154
+  Rule: ['0451190564', '0451190521', '0451190548', '0451190491'] -> ['0451190556'] | Support: 0.0003 | Conf: 1.0000 | Lift: 2268.1154
+  Rule: ['0451190521', '0451190548', '0451190491'] -> ['0451190556'] | Support: 0.0003 | Conf: 1.0000 | Lift: 2268.1154
+  Rule: ['0451190564', '0451190521', '0451190548'] -> ['0451190556'] | Support: 0.0003 | Conf: 0.9412 | Lift: 2134.6968
+  Rule: ['0451190556', '0451190521', '0451190491'] -> ['0451190564'] | Support: 0.0003 | Conf: 0.9444 | Lift: 2062.7716
+  Rule: ['0451190556', '0451190548', '0451190491'] -> ['0451190564'] | Support: 0.0003 | Conf: 0.9444 | Lift: 2062.7716
+  Rule: ['0451190556', '0451190521', '0451190548'] -> ['0451190564'] | Support: 0.0003 | Conf: 0.9412 | Lift: 2055.6340
+  Rule: ['0451190556', '0451190521', '0451190548', '0451190491'] -> ['0451190564'] | Support: 0.0003 | Conf: 0.9412 | Lift: 2055.6340
+  Rule: ['0451190521', '0451190548', '0451190491'] -> ['0451190564'] | Support: 0.0003 | Conf: 0.9412 | Lift: 2055.6340
+  Rule: ['0451190521', '0451190491'] -> ['0451190556'] | Support: 0.0003 | Conf: 0.9000 | Lift: 2041.3038
+  Rule: ['0451190556', '0451190491'] -> ['0451190564'] | Support: 0.0003 | Conf: 0.9000 | Lift: 1965.7000
+  Rule: ['0064471063'] -> ['006447108X'] | Support: 0.0003 | Conf: 0.5926 | Lift: 1941.4321
+  Rule: ['006447108X'] -> ['0064471063'] | Support: 0.0003 | Conf: 0.8889 | Lift: 1941.4321
+  Rule: ['0451190564', '0451190521'] -> ['0451190556'] | Support: 0.0003 | Conf: 0.8500 | Lift: 1927.8981
+  Rule: ['0451190572', '0451190491'] -> ['0451190564'] | Support: 0.0003 | Conf: 0.8824 | Lift: 1927.1569
+  Rule: ['0451190548', '0451190491'] -> ['0451190564'] | Support: 0.0004 | Conf: 0.8750 | Lift: 1911.0972
+  Rule: ['0451190572', '0451190548'] -> ['0451190556'] | Support: 0.0003 | Conf: 0.8333 | Lift: 1890.0962
+  Rule: ['0451190556', '0451190521'] -> ['0451190564'] | Support: 0.0003 | Conf: 0.8500 | Lift: 1856.4944
+  Rule: ['0451190521', '0451190491'] -> ['0451190564'] | Support: 0.0003 | Conf: 0.8500 | Lift: 1856.4944
+  Rule: ['0451190556', '0451190548'] -> ['0451190564'] | Support: 0.0003 | Conf: 0.8500 | Lift: 1856.4944
 
-Wall-clock time for E3 FP-Growth fit: 51.35 seconds
+Wall-clock time for E3 FP-Growth fit: 37.52 seconds
 
 --- BONUS 1: Scalability Benchmark Metrics ---
 Sample Size Fractions : ['25%', '50%', '75%', '100%']
-Serial Apriori Times  : ['0.23s', '1.22s', '1.33s', '1.85s']
-Parallel Spark Times  : ['0.95s', '0.89s', '1.00s', '4.16s']
+Serial Apriori Times  : ['0.24s', '0.89s', '0.83s', '1.08s']
+Parallel Spark Times  : ['1.27s', '1.07s', '1.27s', '4.31s']
 
 Scale Interpretation:
   Serial Apriori displays exponential runtime growth O(N^2) due to intensive combinatorial itemset checks.
